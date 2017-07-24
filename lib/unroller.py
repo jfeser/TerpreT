@@ -196,14 +196,14 @@ def inline_assigns_and_unroll_fors_and_withs(root):
             # Record inlinable functions, and do not visit them:
             if len(node.decorator_list) == 1 and node.decorator_list[0].func.id == "Inline":
                 self.__inlinable_functions[node.name] = node
-#            else:
-#                # Spawn off sub-visitor initialised with current environment,
-#                # but its own scope, and remove arguments:
-#                subEnvironment = copy.copy(self.__environment)
-#                for arg in node.args.args:
-#                    subEnvironment.pop(arg.id, None)
-#                subVisitor = Transformer(subEnvironment, self.__inlinable_functions)
-#                node = subVisitor.generic_visit(node)
+            else:
+                # Spawn off sub-visitor initialised with current environment,
+                # but its own scope, and remove arguments:
+                subEnvironment = copy.copy(self.__environment)
+                for arg in node.args.args:
+                    subEnvironment.pop(arg.id, None)
+                subVisitor = Transformer(subEnvironment, self.__inlinable_functions)
+                node = subVisitor.generic_visit(node)
 
             return node
 
