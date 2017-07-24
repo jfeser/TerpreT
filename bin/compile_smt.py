@@ -90,20 +90,21 @@ def compile_smt(model_filename, hypers_filename, data_filename,
         else:
             solver.add(c)
         idx = idx + 1
+
     with open(out_file_name, 'w') as f:
         f.write(solver.to_smt2())
         f.write("(get-model)")
 
-        # Debugging helper if things unexpectedly end up UNSAT:
-        if debug:
-            print solver.check()
-            core = solver.unsat_core()
-            print "Size of unsat core: %i" % len(core)
-            idx = 0
-            for c in constraints:
-               if Bool("c%i" % idx) in core:
-                   print "CORE: %s" % (constraints[idx])
-               idx = idx + 1
+    # Debugging helper if things unexpectedly end up UNSAT:
+    if debug:
+        print solver.check()
+        core = solver.unsat_core()
+        print "Size of unsat core: %i" % len(core)
+        idx = 0
+        for c in constraints:
+           if Bool("c%i" % idx) in core:
+               print "CORE: %s" % (constraints[idx])
+           idx = idx + 1
 
 if __name__ == "__main__":
     args = docopt(__doc__)
