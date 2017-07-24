@@ -110,6 +110,10 @@ if __name__ == "__main__":
     out_dir = os.path.join(out_dir, "")
     train_batch = args.get('--train-batch', 'train') or 'train'
 
+    if not os.path.isdir(out_dir):
+        print 'Error: Output directory %s does not exist.' % out_dir
+        exit(1)
+
     try:
         compile_smt(source_filename, hypers_filename, data_filename,
                     train_batch, out_dir)
