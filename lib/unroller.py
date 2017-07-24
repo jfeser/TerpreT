@@ -102,9 +102,6 @@ def subs(root, **kwargs):
     root = copy.deepcopy(root)
 
     class Transformer(ast.NodeTransformer):
-        def visit_FunctionDef(self, node):
-            return node
-
         def visit_Name(self, node):
             if node.id in kwargs and not isinstance(node.ctx, ast.Store):
                 replacement = kwargs[node.id]
@@ -196,14 +193,14 @@ def inline_assigns_and_unroll_fors_and_withs(root):
             # Record inlinable functions, and do not visit them:
             if len(node.decorator_list) == 1 and node.decorator_list[0].func.id == "Inline":
                 self.__inlinable_functions[node.name] = node
+
+            # For non-inlined functions, do hyperparameter
+            # substitution, but nothing else.
             else:
-                # Spawn off sub-visitor initialised with current environment,
-                # but its own scope, and remove arguments:
                 subEnvironment = copy.copy(self.__environment)
                 for arg in node.args.args:
                     subEnvironment.pop(arg.id, None)
-                subVisitor = Transformer(subEnvironment, self.__inlinable_functions)
-                node = subVisitor.generic_visit(node)
+                node = subs(node, **subEnvironment)
 
             return node
 
