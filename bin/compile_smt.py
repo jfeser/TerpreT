@@ -52,13 +52,19 @@ def compile_smt(model_filename, hypers_filename, data_filename,
         print ("Generating SMT constraint for I/O example %i." % idx)
         z3compiler = ToZ3ConstraintsVisitor(tag="__ex%i" % idx, variables_to_tag=input_dependents)
         constraints.extend(z3compiler.visit(unrolled_parsed_model))
+
+        # Constrain output variables.
         for var_name, vals in i.iteritems():
             if isinstance(vals, list):
                 for i, val in enumerate(vals):
+                    if val is None: # None values are "don't care" outputs.
+                        continue
                     var_name_item = "%s_%s" % (var_name, i)
                     constraints.append(
                         z3compiler.get_expr(var_name_item) == IntVal(val))
             else:
+                if vals is None: # None values are "don't care" outputs.
+                    continue
                 constraints.append(
                     z3compiler.get_expr(var_name) == IntVal(vals))
         z3compilers.append(z3compiler)
