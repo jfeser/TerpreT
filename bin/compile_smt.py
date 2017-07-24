@@ -6,6 +6,7 @@ Usage:
 Options:
     -h --help                Show this screen.
     --train-batch NAME       Name of the data batch with training data.
+    --debug                  Enable debugging routines.
 '''
 
 import sys
@@ -84,25 +85,30 @@ def compile_smt(model_filename, hypers_filename, data_filename,
     idx = 0
     for c in constraints:
         # Debugging helper if things unexpectedly end up UNSAT:
-        # solver.assert_and_track(c, "c%i" % idx)
-        solver.add(c)
+        if debug:
+            solver.assert_and_track(c, "c%i" % idx)
+        else:
+            solver.add(c)
         idx = idx + 1
     with open(out_file_name, 'w') as f:
         f.write(solver.to_smt2())
         f.write("(get-model)")
+
         # Debugging helper if things unexpectedly end up UNSAT:
-        # print solver.check()
-        # core = solver.unsat_core()
-        # print "Size of unsat core: %i" % len(core)
-        # idx = 0
-        # for c in constraints:
-        #    if Bool("c%i" % idx) in core:
-        #        print "CORE: %s" % (constraints[idx])
-        #    idx = idx + 1
+        if debug:
+            print solver.check()
+            core = solver.unsat_core()
+            print "Size of unsat core: %i" % len(core)
+            idx = 0
+            for c in constraints:
+               if Bool("c%i" % idx) in core:
+                   print "CORE: %s" % (constraints[idx])
+               idx = idx + 1
 
 if __name__ == "__main__":
     args = docopt(__doc__)
 
+    debug = args['--debug']
     source_filename = args['MODEL']
     hypers_filename = args['HYPERS']
     data_filename = args['DATA']
