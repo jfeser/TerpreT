@@ -87,7 +87,7 @@ def load_trainer(args, trainer, data, seed):
 
     loaded_data = data(data_filename)
 
-    return trainer(model, model_module, model_hypers, train_hypers, loaded_data, seed=seed, do_debug=args['--debug'])
+    return Trainer(model, model_module, model_hypers, train_hypers, loaded_data, seed=seed, do_debug=args['--debug'])
 
 def load_and_run(args, trainerClass):
     start_time = time.time()
