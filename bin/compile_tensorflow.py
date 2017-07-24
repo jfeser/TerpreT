@@ -751,6 +751,10 @@ if __name__ == "__main__":
     out_dir = args.get('OUTDIR') or "./compiled/tensorflow_models/"
     out_dir = os.path.join(out_dir, "")
 
+    if not os.path.isdir(out_dir):
+        print 'Error: Output directory %s does not exist.' % out_dir
+        exit(1)
+
     try:
         tfc = TFCompiler(args)
         tfc.compile_to_tensorflow(source_filename, hypers_filename, out_dir, VERBOSE=verbose)
