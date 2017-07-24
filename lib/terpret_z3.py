@@ -154,22 +154,15 @@ class ToZ3ExprVisitor(ast.NodeVisitor):
             raise Exception("Unsupported data type %s" % DATA_TYPE)
 
     def visit_BoolOp(self, node):
-        if len(node.values) != 2:
-            raise Exception("Can only handle binary bool operations at this point: %s"
-                            % unparse(node))
-        left_term = self.visit(node.values[0])
-        right_term = self.visit(node.values[1])
+        terms = [self.visit(v) for v in node.values]
 
         # Special-case for bool circuit-examples:
-        if left_term.is_int():
-            left_term = left_term == IntVal(1)
-        if right_term.is_int():
-            right_term = right_term == IntVal(1)
+        terms = [(t == IntVal(1) if t.sort_kind() == Z3_INT_SORT else t) for t in terms]
 
         if isinstance(node.op, ast.And):
-            return And(left_term, right_term)
+            return And(terms)
         elif isinstance(node.op, ast.Or):
-            return Or(left_term, right_term)
+            return Or(terms)
         else:
             raise Exception("Unsupported bool operation %s" % unparse(node))
 
